@@ -1,5 +1,6 @@
 package dev.gallon.services;
 
+import dev.gallon.domain.BreedingParent;
 import dev.gallon.domain.HorseStats;
 import dev.gallon.domain.MountType;
 import net.minecraft.network.chat.Component;
@@ -46,22 +47,54 @@ public class HorseStatsService {
                             speedInBlocksPerSecond,
                             Optional.ofNullable(slots == 0 ? null : slots),
                             ownerUUID.flatMap(UserCacheService::getUsername),
-                            switch (horse) {
-                                case Horse ignored -> MountType.HORSE;
-                                case Camel ignored -> MountType.CAMEL;
-                                case ZombieHorse ignored -> MountType.ZOMBIE_HORSE;
-                                case Mule ignored -> MountType.MULE;
-                                case TraderLlama ignored -> MountType.TRADER_LLAMA;
-                                case Llama ignored -> MountType.LLAMA;
-                                case Donkey ignored -> MountType.DONKEY;
-                                case SkeletonHorse ignored -> MountType.SKELETON_HORSE;
-                                default -> MountType.HORSE;
-                            }
+                            mountTypeOf(horse)
                     )
             );
         } else {
             return Optional.empty();
         }
+    }
+
+    /**
+     * @return what the mount passes down to its foals: its base health, jump strength and speed, without any modifier
+     */
+    static public Optional<BreedingParent> getBreedingParent(@NotNull AbstractHorse horse) {
+        final Optional<AttributeInstance> healthAttr = Optional.ofNullable(horse.getAttribute(Attributes.MAX_HEALTH));
+        final Optional<AttributeInstance> jumpAttr = Optional.ofNullable(horse.getAttribute(Attributes.JUMP_STRENGTH));
+        final Optional<AttributeInstance> speedAttr = Optional.ofNullable(horse.getAttribute(Attributes.MOVEMENT_SPEED));
+        if (!hasRequiredAttributes(healthAttr, jumpAttr, speedAttr)) {
+            return Optional.empty();
+        }
+
+        final double health = selectAttributeValue(healthAttr.get(), false);
+        final double jumpStrength = selectAttributeValue(jumpAttr.get(), false);
+        final double speed = selectAttributeValue(speedAttr.get(), false);
+        if (!Double.isFinite(health) || !Double.isFinite(jumpStrength) || !Double.isFinite(speed)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new BreedingParent(
+                horse.getUUID(),
+                horse.getDisplayName().getString(),
+                mountTypeOf(horse),
+                health,
+                jumpStrength,
+                speed
+        ));
+    }
+
+    public static MountType mountTypeOf(@NotNull AbstractHorse horse) {
+        return switch (horse) {
+            case Horse ignored -> MountType.HORSE;
+            case Camel ignored -> MountType.CAMEL;
+            case ZombieHorse ignored -> MountType.ZOMBIE_HORSE;
+            case Mule ignored -> MountType.MULE;
+            case TraderLlama ignored -> MountType.TRADER_LLAMA;
+            case Llama ignored -> MountType.LLAMA;
+            case Donkey ignored -> MountType.DONKEY;
+            case SkeletonHorse ignored -> MountType.SKELETON_HORSE;
+            default -> MountType.HORSE;
+        };
     }
 
     static boolean hasRequiredAttributes(

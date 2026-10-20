@@ -186,27 +186,51 @@ public record HorseStats(
     }
 
     public @NotNull String getHealthStr(@NotNull ModConfig config) {
-        return config.getDisplayStatsInPercentage()
-                ? formatPercentage(getHealthPercentage(), config)
-                : formatHealth(health, config);
+        return config.getDisplayStatsInPercentage() ? getHealthPercentageStr(config) : getHealthValueStr(config);
     }
 
     public @NotNull String getJumpHeightStr(@NotNull ModConfig config) {
-        return config.getDisplayStatsInPercentage()
-                ? formatPercentage(getJumpHeightPercentage(), config)
-                : formatJumpHeight(jumpHeight, config);
+        return config.getDisplayStatsInPercentage() ? getJumpHeightPercentageStr(config) : getJumpHeightValueStr(config);
     }
 
     public @NotNull String getSpeedStr(@NotNull ModConfig config) {
-        return config.getDisplayStatsInPercentage()
-                ? formatPercentage(getSpeedPercentage(), config)
-                : formatSpeed(speed, config);
+        return config.getDisplayStatsInPercentage() ? getSpeedPercentageStr(config) : getSpeedValueStr(config);
     }
 
     public @NotNull String getSlotsStr(@NotNull ModConfig config) {
-        return config.getDisplayStatsInPercentage()
-                ? formatPercentage(getSlotsPercentage(), config)
-                : slots.orElse(0).toString();
+        return config.getDisplayStatsInPercentage() ? getSlotsPercentageStr(config) : getSlotsValueStr();
+    }
+
+    public @NotNull String getHealthValueStr(@NotNull ModConfig config) {
+        return formatHealth(health, config);
+    }
+
+    public @NotNull String getJumpHeightValueStr(@NotNull ModConfig config) {
+        return formatJumpHeight(jumpHeight, config);
+    }
+
+    public @NotNull String getSpeedValueStr(@NotNull ModConfig config) {
+        return formatSpeed(speed, config);
+    }
+
+    public @NotNull String getSlotsValueStr() {
+        return slots.orElse(0).toString();
+    }
+
+    public @NotNull String getHealthPercentageStr(@NotNull ModConfig config) {
+        return formatPercentage(getHealthPercentage(), config);
+    }
+
+    public @NotNull String getJumpHeightPercentageStr(@NotNull ModConfig config) {
+        return formatPercentage(getJumpHeightPercentage(), config);
+    }
+
+    public @NotNull String getSpeedPercentageStr(@NotNull ModConfig config) {
+        return formatPercentage(getSpeedPercentage(), config);
+    }
+
+    public @NotNull String getSlotsPercentageStr(@NotNull ModConfig config) {
+        return formatPercentage(getSlotsPercentage(), config);
     }
 
     /**

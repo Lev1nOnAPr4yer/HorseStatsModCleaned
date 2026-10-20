@@ -8,7 +8,6 @@ import dev.gallon.domain.ModConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
@@ -20,31 +19,33 @@ import java.util.List;
 import java.util.Optional;
 
 public class DisplayService {
-    // Horizontal space between two stats displayed in the horse inventory, and before the overall stat and the owner
-    private static final int STAT_GAP = 5;
-    private static final int SECTION_GAP = 8;
-
     /**
      * One statistic of a mount, already formatted according to the config.
      *
-     * @param labelKey the translation key of the stat's name
-     * @param unitKey  the translation key of the stat's unit, displayed when hovering the stat in the inventory
-     * @param valueStr the value (or percentage) to display
-     * @param minStr   the min possible value to display
-     * @param maxStr   the max possible value to display
+     * @param labelKey   the translation key of the stat's name
+     * @param valueStr   the value, or the percentage when the config asks for percentages
+     * @param rawStr     the value, whatever the config says about percentages
+     * @param percentStr the percentage, whatever the config says about percentages
+     * @param minStr     the min possible value to display
+     * @param maxStr     the max possible value to display
      */
-    private record Stat(
+    record Stat(
             @NotNull String labelKey,
-            @NotNull String unitKey,
             double value,
             double min,
             double max,
             @NotNull String valueStr,
+            @NotNull String rawStr,
+            @NotNull String percentStr,
             @NotNull String minStr,
             @NotNull String maxStr
     ) {
     }
 
+    /**
+     * The stats and the comparison are displayed next to the inventory by {@link InventoryPanels}. When they are turned
+     * off, the stats are only displayed in a tooltip when hovering the mount's name.
+     */
     public static void displayContainerStats(
             @NotNull GuiGraphicsExtractor guiGraphics,
             @NotNull ModConfig config,
@@ -53,21 +54,7 @@ public class DisplayService {
             int containerMouseX,
             int containerMouseY
     ) {
-
-
-        if (config.getDisplayStatsInInventory()) {
-            displayStatsAndHoveringTexts(
-                    guiGraphics, config, stats, containerMouseX, containerMouseY
-            );
-
-            switch (config.getGroupedStats()) {
-                case GroupedKind.GROUPED :    // when stats are grouped, we want to popup showing the details stats anyway
-                    displayStatsInHoveringText( guiGraphics, config, stats, containerWidth, containerMouseX, containerMouseY);
-                break;
-                default:
-                break;
-            }
-        } else {
+        if (!config.getDisplayStatsInInventory()) {
             displayStatsInHoveringText(
                     guiGraphics, config, stats, containerWidth, containerMouseX, containerMouseY
             );
@@ -111,97 +98,6 @@ public class DisplayService {
                     containerMouseY,
                     textLines
             );
-        }
-    }
-
-    private static void displayStatsAndHoveringTexts(
-            @NotNull GuiGraphicsExtractor guiGraphics,
-            @NotNull ModConfig config,
-            @NotNull HorseStats stats,
-            int containerMouseX,
-            int containerMouseY
-    ) {
-        final Font font = Minecraft.getInstance().font;
-
-        // The boxes positions (x,y) and dimensions (w,h) defining when to display the hovering text relative to the
-        // top left of the container
-        int rx;
-        int ry = 6;
-        int rh = 11;
-
-        // Starts at x=60 by displaying "Stats:" (if it fits the GUI)
-        if (config.getGroupedStats() == GroupedKind.GROUPED_AND_INDIVIDUAL) {
-            rx = 44;
-            // 6 is the maximum number of letters for "Stats" to be displayed, because otherwise it overlaps with
-            // the horse's name
-
-            // It is possible to open the GUI without riding a horse!
-            if (stats.name().length() <= 6) {
-                drawText(guiGraphics, I18n.get(I18nKeys.STATS) + ":", rx, ry, 0Xff444444);
-            }
-        } else {
-            rx = 60;
-            // 7 is the maximum number of letters for "Stats" to be displayed, because otherwise it overlaps with
-            // the horse's name
-
-            // It is possible to open the GUI without riding a horse!
-            if (stats.name().length() <= 8) {
-                drawText(guiGraphics, I18n.get(I18nKeys.STATS) + ":", rx, ry, 0Xff444444);
-            }
-        }
-
-        // The stats start 33 units to the right of "Stats:", then each text is followed by a gap so that they never
-        // overlap, whatever the number of decimals displayed
-        rx += 33;
-        Stat hoveredStat = null;
-
-        if (config.getGroupedStats() != GroupedKind.GROUPED) {
-            // Only health, jump and speed are displayed in the inventory
-            for (Stat stat : buildStats(config, stats, false)) {
-                drawText(guiGraphics,
-                        stat.valueStr(),
-                        rx, ry,
-                        config.getColoredStats() ? getColorHex(stat.value(), stat.min(), stat.max()) : 0Xff444444
-                );
-                int width = font.width(stat.valueStr());
-                if (posInRect(containerMouseX, containerMouseY, rx - 2, ry - 2, width + 3, rh)) {
-                    hoveredStat = stat;
-                }
-                rx += width + STAT_GAP;
-            }
-            rx += SECTION_GAP - STAT_GAP;
-        }
-
-        if (config.getGroupedStats() != GroupedKind.INDIVIDUAL) {
-            final String groupedStr = stats.getGroupedStatsStr(config);
-            drawText(guiGraphics,
-                    groupedStr,
-                    rx, ry,
-                    config.getColoredStats() ? getColorHex(stats.getGroupedStats(), 0, 100) : 0Xff444444
-            );
-            rx += font.width(groupedStr) + SECTION_GAP;
-        }
-
-        // owner
-        if (stats.owner().isPresent()) {
-            drawText(guiGraphics,
-                    stats.owner().get(),
-                    rx, ry,
-                    0Xff444444
-            );
-        }
-
-        if (hoveredStat != null) {
-            if (config.getDisplayStatsInPercentage()) {
-                drawHoveringText(guiGraphics, containerMouseX, containerMouseY, I18n.get(hoveredStat.labelKey()));
-            } else {
-                drawHoveringText(guiGraphics,
-                        containerMouseX, containerMouseY,
-                        config.getColoredStats(),
-                        I18n.get(hoveredStat.labelKey()) + " (" + I18n.get(hoveredStat.unitKey()) + "):",
-                        hoveredStat.minStr(), hoveredStat.maxStr()
-                );
-            }
         }
     }
 
@@ -266,34 +162,42 @@ public class DisplayService {
      * @param includeSlots whether to add the slots, when the mount has some
      * @return the health, jump height, speed and slots of the mount, formatted according to the config
      */
-    private static List<Stat> buildStats(@NotNull ModConfig config, @NotNull HorseStats stats, boolean includeSlots) {
+    static List<Stat> buildStats(@NotNull ModConfig config, @NotNull HorseStats stats, boolean includeSlots) {
         List<Stat> result = new ArrayList<>();
         result.add(new Stat(
-                I18nKeys.HEALTH, I18nKeys.HEALTH,
+                I18nKeys.HEALTH,
                 stats.health(), stats.minHealth(), stats.maxHealth(),
                 stats.getHealthStr(config),
+                stats.getHealthValueStr(config),
+                stats.getHealthPercentageStr(config),
                 HorseStats.formatHealth(stats.minHealth(), config),
                 HorseStats.formatHealth(stats.maxHealth(), config)
         ));
         result.add(new Stat(
-                I18nKeys.JUMP_HEIGHT, I18nKeys.BLOCKS,
+                I18nKeys.JUMP_HEIGHT,
                 stats.jumpHeight(), stats.minJumpHeight(), stats.maxJumpHeight(),
                 stats.getJumpHeightStr(config),
+                stats.getJumpHeightValueStr(config),
+                stats.getJumpHeightPercentageStr(config),
                 HorseStats.formatJumpHeight(stats.minJumpHeight(), config),
                 HorseStats.formatJumpHeight(stats.maxJumpHeight(), config)
         ));
         result.add(new Stat(
-                I18nKeys.SPEED, I18nKeys.METERS_PER_SECONDS,
+                I18nKeys.SPEED,
                 stats.speed(), stats.minSpeed(), stats.maxSpeed(),
                 stats.getSpeedStr(config),
+                stats.getSpeedValueStr(config),
+                stats.getSpeedPercentageStr(config),
                 HorseStats.formatSpeed(stats.minSpeed(), config),
                 HorseStats.formatSpeed(stats.maxSpeed(), config)
         ));
         if (includeSlots) {
             stats.slots().ifPresent(slots -> result.add(new Stat(
-                    I18nKeys.SLOTS, I18nKeys.SLOTS,
+                    I18nKeys.SLOTS,
                     slots, stats.minSlots(), stats.maxSlots(),
                     stats.getSlotsStr(config),
+                    stats.getSlotsValueStr(),
+                    stats.getSlotsPercentageStr(config),
                     stats.minSlots().toString(),
                     stats.maxSlots().toString()
             )));
@@ -319,7 +223,7 @@ public class DisplayService {
                 (displayMax ? (reset + "/" + green + stat.maxStr()) : "");
     }
 
-    private static String reset(@NotNull ModConfig config) {
+    static String reset(@NotNull ModConfig config) {
         return config.getColoredStats() ? ChatFormatting.RESET.toString() : "";
     }
 
@@ -355,53 +259,6 @@ public class DisplayService {
         }
     }
 
-    /**
-     * Renders some text with shadow. The position is relative to the current selected container. If none, it's relative
-     * to the screen.
-     *
-     * @param guiGraphics guiGraphics to draw
-     * @param text        the text that you want to write,
-     * @param x           the x position (from left to right),
-     * @param y           the y position (from top to bottom),
-     * @param color       the color in hex (00-FF), following this format: RRGGBB (R:red, G:green, B:blue). Ex: 0xFFFFFF
-     */
-    private static void drawText(GuiGraphicsExtractor guiGraphics, String text, int x, int y, int color) {
-        guiGraphics.text(
-                Minecraft.getInstance().font,
-                text,
-                x, y,
-                color,
-                false
-        );
-    }
-
-    private static void drawHoveringText(
-            GuiGraphicsExtractor guiGraphics,
-            int x,
-            int y,
-            boolean coloredStats,
-            String title,
-            String min,
-            String max
-    ) {
-        List<Component> textLines = new ArrayList<>();
-        textLines.add(Component.literal(title));
-        textLines.add(Component.literal(
-                (coloredStats ? ChatFormatting.RED.toString() : "") + I18n.get(I18nKeys.MIN) + ": " + min
-        ));
-        textLines.add(Component.literal(
-                (coloredStats ? ChatFormatting.GREEN.toString() : "") + I18n.get(I18nKeys.MAX) + ": " + max
-        ));
-
-        drawHoveringText(guiGraphics, x, y, textLines);
-    }
-
-    private static void drawHoveringText(GuiGraphicsExtractor guiGraphics, int x, int y, String title) {
-        List<Component> textLines = new ArrayList<>();
-        textLines.add(Component.literal(title));
-        drawHoveringText(guiGraphics, x, y, textLines);
-    }
-
     private static void drawHoveringText(GuiGraphicsExtractor guiGraphics, int x, int y, List<Component> textLines) {
         // Deferred tooltips are extracted after the container pose has been restored.
         // Convert the local hover position to scaled screen coordinates while it is still available.
@@ -421,7 +278,7 @@ public class DisplayService {
      * @param max the max possible value
      * @return a hex color according to the percentage of val in min/max
      */
-    private static int getColorHex(double val, double min, double max) {
+    static int getColorHex(double val, double min, double max) {
         double p = getPercentage(val, min, max);
 
         if (p <= 25) {
@@ -455,7 +312,7 @@ public class DisplayService {
         }
     }
 
-    private static String getColorTextFormat(ModConfig config, double val, double min, double max) {
+    static String getColorTextFormat(ModConfig config, double val, double min, double max) {
         return config.getColoredStats() ? getColorTextFormat(val, min, max).toString() : "";
     }
 

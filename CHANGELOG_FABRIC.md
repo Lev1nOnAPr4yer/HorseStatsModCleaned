@@ -1,3 +1,23 @@
+## Version 3.8.0 Fabric
+
+_supports Minecraft 26.3.x_
+
+Changes:
+- The horse inventory has its own panels now, next to the inventory window, instead of cramming the stats into its
+  title line:
+  - A **Stats** panel (on the right) with, for each stat, its value and its percentage at the same time, and the
+    overall percentage. It follows the options for colors, decimals and `displayMinMax`. Both panels are shown when
+    `displayStatsInInventory` is on; when it is off, the stats only appear in a tooltip over the mount's name.
+  - A **Compare** panel (on the left) to find out which two mounts to breed.
+- New buttons in the inventory of horses and donkeys: **Add to compare 1**, **Add to compare 2** and **Run compare**.
+  The selected mounts are kept when you close the inventory, so the second one can be added from another inventory.
+  The result is the chance, for each of the health, the jump height, the speed and the overall percentage, that their
+  foal ends up higher than both parents. It is calculated exactly from the game's breeding formula, with the parents'
+  base stats (potion effects aren't inherited). Horse with horse, donkey with donkey, and horse with donkey (their foal
+  is a mule) are supported; mules can't have foals.
+- The panels move to the other side of the inventory, or stack, when the window is too narrow for both. Below about 424
+  GUI units of width (a 1280x720 window at GUI scale 4, for example), they overlap the inventory: lower the GUI scale.
+
 ## Version 3.7.0 Fabric
 
 _supports Minecraft 26.3.x_

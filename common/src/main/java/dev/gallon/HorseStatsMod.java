@@ -2,13 +2,19 @@ package dev.gallon;
 
 import com.mojang.logging.LogUtils;
 import dev.gallon.domain.AboveHeadKind;
+import dev.gallon.domain.BreedingOdds;
 import dev.gallon.domain.HorseStats;
 import dev.gallon.domain.InteractionKind;
+import dev.gallon.domain.InventoryLayout;
 import dev.gallon.domain.ModConfig;
+import dev.gallon.mixins.AbstractContainerScreenAccessor;
 import dev.gallon.mixins.HorseInventoryScreenAccessor;
+import dev.gallon.services.HorseStatsService;
+import dev.gallon.services.InventoryPanels;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +32,7 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static dev.gallon.services.DisplayService.buildAboveHeadLines;
 import static dev.gallon.services.DisplayService.buildOverlayMessage;
@@ -43,6 +50,21 @@ public final class HorseStatsMod {
 
     private final @NotNull ModConfig config;
     private final @NotNull OverlayState overlayState = new OverlayState();
+    private final @NotNull CompareState compareState = new CompareState();
+
+    /**
+     * The panels' positions are worked out once for each inventory screen and window size, so that the buttons that
+     * are created when the screen is initialized always match the panels that are drawn afterwards.
+     */
+    private record PanelsLayout(
+            @NotNull HorseInventoryScreen screen,
+            int screenWidth,
+            int screenHeight,
+            @NotNull InventoryLayout layout
+    ) {
+    }
+
+    private @Nullable PanelsLayout panelsLayout;
 
     private boolean interactionDisplayEnabled = true;
     private boolean inventoryDisplayEnabled = true;
@@ -215,6 +237,119 @@ public final class HorseStatsMod {
                     exception
             );
         }
+    }
+
+    /**
+     * Adds the "Add to compare 1", "Add to compare 2" and "Run compare" buttons to a mount's inventory.
+     */
+    public void onHorseInventoryInit(@NotNull HorseInventoryScreen screen, @NotNull Consumer<Button> addButton) {
+        if (!inventoryDisplayEnabled || !config.getDisplayStatsInInventory()) {
+            return;
+        }
+
+        try {
+            AbstractHorse horse = mountOf(screen);
+            if (horse == null || !canCompare(horse)) {
+                return;
+            }
+
+            Optional<HorseStats> stats = getHorseStats(horse, config.getIncludeAttributeModifiers());
+            if (stats.isEmpty()) {
+                return;
+            }
+
+            AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) screen;
+            InventoryPanels.createCompareButtons(
+                    layoutOf(screen, stats.get()).compare(),
+                    accessor.getLeftPos(),
+                    accessor.getTopPos(),
+                    () -> addToCompare(CompareState.FIRST, horse),
+                    () -> addToCompare(CompareState.SECOND, horse),
+                    compareState::run
+            ).forEach(addButton);
+        } catch (RuntimeException exception) {
+            disableInventoryDisplay(exception);
+        }
+    }
+
+    private void addToCompare(int slot, @NotNull AbstractHorse horse) {
+        HorseStatsService.getBreedingParent(horse).ifPresent(parent -> compareState.set(slot, parent));
+    }
+
+    /**
+     * Draws the stats and the comparison on the sides of a mount's inventory.
+     */
+    public void onRenderHorseInventoryPanels(@NotNull HorseInventoryScreen screen, @NotNull GuiGraphicsExtractor guiGraphics) {
+        if (!inventoryDisplayEnabled || !config.getDisplayStatsInInventory()) {
+            return;
+        }
+
+        try {
+            AbstractHorse horse = mountOf(screen);
+            if (horse == null) {
+                return;
+            }
+
+            Optional<HorseStats> stats = getHorseStats(horse, config.getIncludeAttributeModifiers());
+            if (stats.isEmpty()) {
+                return;
+            }
+
+            AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) screen;
+            InventoryLayout layout = layoutOf(screen, stats.get());
+            var font = Minecraft.getInstance().font;
+
+            InventoryPanels.drawStats(
+                    guiGraphics, font, config, stats.get(), layout.stats(), accessor.getLeftPos(), accessor.getTopPos()
+            );
+            if (canCompare(horse)) {
+                InventoryPanels.drawCompare(
+                        guiGraphics, font, config, compareState, layout.compare(), accessor.getLeftPos(), accessor.getTopPos()
+                );
+            }
+        } catch (RuntimeException exception) {
+            disableInventoryDisplay(exception);
+        }
+    }
+
+    private static @Nullable AbstractHorse mountOf(@NotNull HorseInventoryScreen screen) {
+        return ((HorseInventoryScreenAccessor) screen).getMount() instanceof AbstractHorse horse ? horse : null;
+    }
+
+    private static boolean canCompare(@NotNull AbstractHorse horse) {
+        return BreedingOdds.canBeParent(HorseStatsService.mountTypeOf(horse));
+    }
+
+    private @NotNull InventoryLayout layoutOf(@NotNull HorseInventoryScreen screen, @NotNull HorseStats stats) {
+        PanelsLayout current = panelsLayout;
+        if (current != null
+                && current.screen() == screen
+                && current.screenWidth() == screen.width
+                && current.screenHeight() == screen.height) {
+            return current.layout();
+        }
+
+        var font = Minecraft.getInstance().font;
+        AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) screen;
+        InventoryLayout layout = InventoryLayout.compute(
+                accessor.getLeftPos(),
+                accessor.getImageWidth(),
+                screen.width,
+                InventoryPanels.statsWidth(font, config, stats),
+                InventoryPanels.statsHeight(config, stats),
+                InventoryPanels.COMPARE_WIDTH,
+                InventoryPanels.compareMaxHeight()
+        );
+        panelsLayout = new PanelsLayout(screen, screen.width, screen.height, layout);
+        return layout;
+    }
+
+    private void disableInventoryDisplay(RuntimeException exception) {
+        inventoryDisplayEnabled = false;
+        LOGGER.error(
+                "HorseStatsMod disabled horse inventory rendering for this session after a failure",
+                exception
+        );
     }
 
     /**
