@@ -33,22 +33,9 @@ jobs:
       - name: Publish
         uses: Kira-NT/mc-publish@v3
         with:
-          modrinth-id: RnxjxXAI
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          modrinth-dependencies: |
-            P7dR8mSH(required)
-            9s6osm5g(required)
-            mOgUt4GM(optional)
-
-          curseforge-id: 409126
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          curseforge-dependencies: |
-            306612(required)
-            348521(required)
-            308702(optional)
-
+          # Only publishes a GitHub release on this repository, with the mod jar attached
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-files: fabric/build/libs/*.jar
+          github-files: fabric/build/libs/!(*-@(dev|sources|javadoc)).jar
 
           files: fabric/build/libs/!(*-@(dev|sources|javadoc)).jar
           name: Horse Statistics ${{ github.ref_name }}

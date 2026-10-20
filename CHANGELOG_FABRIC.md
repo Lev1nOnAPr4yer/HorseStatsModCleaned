@@ -1,4 +1,6 @@
-## Unreleased
+## Version 3.7.0 Fabric
+
+_supports Minecraft 26.3.x_
 
 Changes:
 - Percentages are now rounded to the nearest value instead of being cut off: 65.6% is displayed as 66% instead of 65%.
