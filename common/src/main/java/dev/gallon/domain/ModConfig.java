@@ -16,6 +16,7 @@ public class ModConfig {
         static final DisplayMinMax DISPLAY_MIN_MAX = DisplayMinMax.DISABLED;
         static final Boolean DISPLAY_STATS_IN_PERCENTAGE = false;
         static final Boolean PERCENTAGE_WITH_DECIMAL = false;
+        static final Boolean DISPLAY_BREEDING_STATUS = true;
         static final Integer HEALTH_DECIMALS = 0;
         static final Integer JUMP_HEIGHT_DECIMALS = 2;
         static final Integer SPEED_DECIMALS = 2;
@@ -42,6 +43,7 @@ public class ModConfig {
     private DisplayMinMax displayMinMax = Defaults.DISPLAY_MIN_MAX;
     private Boolean displayStatsInPercentage = Defaults.DISPLAY_STATS_IN_PERCENTAGE;
     private Boolean percentageWithDecimal = Defaults.PERCENTAGE_WITH_DECIMAL;
+    private Boolean displayBreedingStatus = Defaults.DISPLAY_BREEDING_STATUS;
     private Integer healthDecimals = Defaults.HEALTH_DECIMALS;
     private Integer jumpHeightDecimals = Defaults.JUMP_HEIGHT_DECIMALS;
     private Integer speedDecimals = Defaults.SPEED_DECIMALS;
@@ -93,6 +95,14 @@ public class ModConfig {
 
     public void setPercentageWithDecimal(@NotNull Boolean percentageWithDecimal) {
         this.percentageWithDecimal = Objects.requireNonNullElse(percentageWithDecimal, Defaults.PERCENTAGE_WITH_DECIMAL);
+    }
+
+    public @NotNull Boolean getDisplayBreedingStatus() {
+        return Objects.requireNonNullElse(displayBreedingStatus, Defaults.DISPLAY_BREEDING_STATUS);
+    }
+
+    public void setDisplayBreedingStatus(@NotNull Boolean displayBreedingStatus) {
+        this.displayBreedingStatus = Objects.requireNonNullElse(displayBreedingStatus, Defaults.DISPLAY_BREEDING_STATUS);
     }
 
     public @NotNull Integer getHealthDecimals() {
@@ -181,6 +191,7 @@ public class ModConfig {
         setDisplayMinMax(displayMinMax);
         setDisplayStatsInPercentage(displayStatsInPercentage);
         setPercentageWithDecimal(percentageWithDecimal);
+        setDisplayBreedingStatus(displayBreedingStatus);
         setHealthDecimals(healthDecimals);
         setJumpHeightDecimals(jumpHeightDecimals);
         setSpeedDecimals(speedDecimals);

@@ -28,6 +28,7 @@ class TheModConfigTest {
         TheModConfig.CLIENT.statsInPercentage.set(true);
         TheModConfig.CLIENT.groupedStats.set(GroupedKind.GROUPED_AND_INDIVIDUAL);
         TheModConfig.CLIENT.includeAttributeModifiers.set(false);
+        TheModConfig.CLIENT.displayBreedingStatus.set(false);
 
         TheModConfig.bakeConfig();
 
@@ -38,6 +39,7 @@ class TheModConfigTest {
         assertTrue(TheModConfig.config.getDisplayStatsInPercentage());
         assertEquals(GroupedKind.GROUPED_AND_INDIVIDUAL, TheModConfig.config.getGroupedStats());
         assertFalse(TheModConfig.config.getIncludeAttributeModifiers());
+        assertFalse(TheModConfig.config.getDisplayBreedingStatus());
     }
 
     @Test

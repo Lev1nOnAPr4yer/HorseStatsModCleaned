@@ -15,6 +15,7 @@ public final class ClientConfig {
     public final ForgeConfigSpec.EnumValue<DisplayMinMax> displayMinMax;
     public final ForgeConfigSpec.BooleanValue statsInPercentage;
     public final ForgeConfigSpec.BooleanValue percentageWithDecimal;
+    public final ForgeConfigSpec.BooleanValue displayBreedingStatus;
     public final ForgeConfigSpec.IntValue healthDecimals;
     public final ForgeConfigSpec.IntValue jumpHeightDecimals;
     public final ForgeConfigSpec.IntValue speedDecimals;
@@ -61,6 +62,13 @@ public final class ClientConfig {
                         "the nearest value.")
                 .translation(I18nKeys.PERCENTAGE_WITH_DECIMAL)
                 .define("percentageWithDecimal", false);
+
+        displayBreedingStatus = builder
+                .comment("Shows whether horses can breed, or how long their breeding cooldown still lasts, in the " +
+                        "horse inventory and above the horses' heads. The cooldown can only be read in singleplayer " +
+                        "and when hosting a LAN world: the game doesn't tell it to the clients of other servers.")
+                .translation(I18nKeys.DISPLAY_BREEDING_STATUS)
+                .define("displayBreedingStatus", true);
 
         healthDecimals = builder
                 .comment("Number of decimals displayed for the health. Bred horses can have a fractional health.")

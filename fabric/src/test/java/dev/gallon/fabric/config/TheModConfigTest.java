@@ -37,6 +37,7 @@ class TheModConfigTest {
                             "displayMinMax": "MAX_ONLY",
                             "displayStatsInPercentage": true,
                             "percentageWithDecimal": true,
+                            "displayBreedingStatus": false,
                             "healthDecimals": 3,
                             "jumpHeightDecimals": 9,
                             "speedDecimals": 0,
@@ -57,6 +58,7 @@ class TheModConfigTest {
         assertEquals(DisplayMinMax.MAX_ONLY, config.modConfig.getDisplayMinMax());
         assertTrue(config.modConfig.getDisplayStatsInPercentage());
         assertTrue(config.modConfig.getPercentageWithDecimal());
+        assertFalse(config.modConfig.getDisplayBreedingStatus());
         assertEquals(3, config.modConfig.getHealthDecimals());
         assertEquals(5, config.modConfig.getJumpHeightDecimals());
         assertEquals(0, config.modConfig.getSpeedDecimals());

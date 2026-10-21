@@ -1,3 +1,19 @@
+## Version 3.9.0 Fabric
+
+_supports Minecraft 26.3.x_
+
+Changes:
+- New option `displayBreedingStatus` (on by default) to show whether a horse can breed, or how long its breeding
+  cooldown lasts, in the **Stats** panel of the horse inventory and, when the statistics above mounts are on, above
+  the horses' heads:
+  - **Foal**: it can't breed yet, and when it grows up.
+  - **On cooldown**: the time left before it can breed again (5 minutes after a foal is born).
+  - **Off cooldown**: it can be fed a golden apple or a golden carrot to breed.
+  - **In love** and **Ready**: it was fed less than 30 seconds ago, with the time left. "Ready" means nothing is in
+    the way; otherwise the panel tells why (not at full health, being ridden).
+- The game keeps the cooldown and the love time on the server only. They are exact in singleplayer and when hosting a
+  LAN world. On someone else's server they are shown as unknown, while foals and untamed horses are still recognized.
+
 ## Version 3.8.0 Fabric
 
 _supports Minecraft 26.3.x_

@@ -16,6 +16,7 @@ public final class I18nKeys {
     public static final @NotNull String MIN = ModMetadata.MOD_ID + ".min";
     public static final @NotNull String MAX = ModMetadata.MOD_ID + ".max";
     public static final @NotNull String OWNER = ModMetadata.MOD_ID + ".owner";
+    public static final @NotNull String BREEDING = ModMetadata.MOD_ID + ".breeding.title";
     public static final @NotNull String DISPLAY_STATS_IN_INVENTORY = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.displayStatsInInventory";
     public static final @NotNull String DISPLAY_STATS_ON_INTERACTION = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.displayStatsOnInteraction";
     public static final @NotNull String COLORED_STATS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.coloredStats";
@@ -25,6 +26,7 @@ public final class I18nKeys {
     public static final @NotNull String HEALTH_DECIMALS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.healthDecimals";
     public static final @NotNull String JUMP_HEIGHT_DECIMALS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.jumpHeightDecimals";
     public static final @NotNull String SPEED_DECIMALS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.speedDecimals";
+    public static final @NotNull String DISPLAY_BREEDING_STATUS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.displayBreedingStatus";
     public static final @NotNull String GROUPED_STATS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.groupedStats";
     public static final @NotNull String INCLUDE_ATTRIBUTE_MODIFIERS = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.includeAttributeModifiers";
     public static final @NotNull String DISPLAY_STATS_ABOVE_HEAD = "text.autoconfig." + ModMetadata.MOD_ID + ".option.modConfig.displayStatsAboveHead";

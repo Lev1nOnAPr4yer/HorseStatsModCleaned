@@ -23,7 +23,8 @@ class ForgeResourcesTest {
             I18nKeys.STATS_IN_PERCENTAGE,
             I18nKeys.GROUPED_STATS,
             I18nKeys.INCLUDE_ATTRIBUTE_MODIFIERS,
-            I18nKeys.DISPLAY_STATS_ABOVE_HEAD
+            I18nKeys.DISPLAY_STATS_ABOVE_HEAD,
+            I18nKeys.DISPLAY_BREEDING_STATUS
     );
 
     @Test

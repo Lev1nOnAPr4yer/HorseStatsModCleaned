@@ -38,6 +38,7 @@ public final class TheModConfig {
         config.setDisplayMinMax(CLIENT.displayMinMax.get());
         config.setDisplayStatsInPercentage(CLIENT.statsInPercentage.get());
         config.setPercentageWithDecimal(CLIENT.percentageWithDecimal.get());
+        config.setDisplayBreedingStatus(CLIENT.displayBreedingStatus.get());
         config.setHealthDecimals(CLIENT.healthDecimals.get());
         config.setJumpHeightDecimals(CLIENT.jumpHeightDecimals.get());
         config.setSpeedDecimals(CLIENT.speedDecimals.get());
@@ -54,6 +55,7 @@ public final class TheModConfig {
         CLIENT.displayMinMax.set(source.getDisplayMinMax());
         CLIENT.statsInPercentage.set(source.getDisplayStatsInPercentage());
         CLIENT.percentageWithDecimal.set(source.getPercentageWithDecimal());
+        CLIENT.displayBreedingStatus.set(source.getDisplayBreedingStatus());
         CLIENT.healthDecimals.set(source.getHealthDecimals());
         CLIENT.jumpHeightDecimals.set(source.getJumpHeightDecimals());
         CLIENT.speedDecimals.set(source.getSpeedDecimals());

@@ -1,6 +1,7 @@
 package dev.gallon.domain;
 
 import dev.gallon.CompareState;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -26,6 +27,17 @@ class TranslationsTest {
         ));
         for (CompareState.Problem problem : CompareState.Problem.values()) {
             keys.add(problem.translationKey());
+        }
+        keys.add("horsestatsmod.breeding.title");
+        keys.add(I18nKeys.DISPLAY_BREEDING_STATUS);
+        for (BreedingStatus.State state : BreedingStatus.State.values()) {
+            keys.add("horsestatsmod.breeding.state." + state.name().toLowerCase(Locale.ROOT));
+        }
+        for (BreedingStatus.Blocker blocker : BreedingStatus.Blocker.values()) {
+            keys.add("horsestatsmod.breeding.detail." + blocker.name().toLowerCase(Locale.ROOT));
+        }
+        for (String detail : List.of("foal", "cooldown", "ready", "can_be_fed", "unknown")) {
+            keys.add("horsestatsmod.breeding.detail." + detail);
         }
 
         for (String language : List.of("en_us", "fr_fr")) {

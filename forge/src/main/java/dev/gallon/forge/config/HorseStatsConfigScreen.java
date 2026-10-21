@@ -83,6 +83,11 @@ public final class HorseStatsConfigScreen extends Screen {
                 draft.getPercentageWithDecimal(),
                 draft::setPercentageWithDecimal
         ));
+        options.addChild(booleanOption(
+                I18nKeys.DISPLAY_BREEDING_STATUS,
+                draft.getDisplayBreedingStatus(),
+                draft::setDisplayBreedingStatus
+        ));
         options.addChild(decimalsOption(I18nKeys.HEALTH_DECIMALS, draft.getHealthDecimals(), draft::setHealthDecimals));
         options.addChild(decimalsOption(
                 I18nKeys.JUMP_HEIGHT_DECIMALS,
@@ -229,6 +234,7 @@ public final class HorseStatsConfigScreen extends Screen {
         copy.setDisplayMinMax(source.getDisplayMinMax());
         copy.setDisplayStatsInPercentage(source.getDisplayStatsInPercentage());
         copy.setPercentageWithDecimal(source.getPercentageWithDecimal());
+        copy.setDisplayBreedingStatus(source.getDisplayBreedingStatus());
         copy.setHealthDecimals(source.getHealthDecimals());
         copy.setJumpHeightDecimals(source.getJumpHeightDecimals());
         copy.setSpeedDecimals(source.getSpeedDecimals());

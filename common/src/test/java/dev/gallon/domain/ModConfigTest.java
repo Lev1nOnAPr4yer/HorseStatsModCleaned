@@ -44,6 +44,7 @@ class ModConfigTest {
         assertEquals(DisplayMinMax.DISABLED, config.getDisplayMinMax());
         assertFalse(config.getDisplayStatsInPercentage());
         assertFalse(config.getPercentageWithDecimal());
+        assertTrue(config.getDisplayBreedingStatus());
         assertEquals(0, config.getHealthDecimals());
         assertEquals(2, config.getJumpHeightDecimals());
         assertEquals(2, config.getSpeedDecimals());

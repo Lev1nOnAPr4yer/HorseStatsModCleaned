@@ -3,12 +3,15 @@ package dev.gallon;
 import com.mojang.logging.LogUtils;
 import dev.gallon.domain.AboveHeadKind;
 import dev.gallon.domain.BreedingOdds;
+import dev.gallon.domain.BreedingStatus;
 import dev.gallon.domain.HorseStats;
 import dev.gallon.domain.InteractionKind;
 import dev.gallon.domain.InventoryLayout;
 import dev.gallon.domain.ModConfig;
 import dev.gallon.mixins.AbstractContainerScreenAccessor;
 import dev.gallon.mixins.HorseInventoryScreenAccessor;
+import dev.gallon.services.BreedingText;
+import dev.gallon.services.BreedingTracker;
 import dev.gallon.services.HorseStatsService;
 import dev.gallon.services.InventoryPanels;
 import net.minecraft.client.Minecraft;
@@ -30,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -51,6 +55,7 @@ public final class HorseStatsMod {
     private final @NotNull ModConfig config;
     private final @NotNull OverlayState overlayState = new OverlayState();
     private final @NotNull CompareState compareState = new CompareState();
+    private final @NotNull BreedingTracker breedingTracker = new BreedingTracker();
 
     /**
      * The panels' positions are worked out once for each inventory screen and window size, so that the buttons that
@@ -126,6 +131,7 @@ public final class HorseStatsMod {
 
     public void onClientTick() {
         overlayState.tick();
+        breedingTracker.tick();
         updateLookedAtMount();
     }
 
@@ -299,8 +305,9 @@ public final class HorseStatsMod {
             InventoryLayout layout = layoutOf(screen, stats.get());
             var font = Minecraft.getInstance().font;
 
+            BreedingStatus breeding = config.getDisplayBreedingStatus() ? breedingTracker.statusOf(horse) : null;
             InventoryPanels.drawStats(
-                    guiGraphics, font, config, stats.get(), layout.stats(), accessor.getLeftPos(), accessor.getTopPos()
+                    guiGraphics, font, config, stats.get(), breeding, layout.stats(), accessor.getLeftPos(), accessor.getTopPos()
             );
             if (canCompare(horse)) {
                 InventoryPanels.drawCompare(
@@ -378,7 +385,13 @@ public final class HorseStatsMod {
             }
 
             return getHorseStats(horse, config.getIncludeAttributeModifiers())
-                    .map(stats -> buildAboveHeadLines(config, stats))
+                    .map(stats -> {
+                        List<Component> lines = new ArrayList<>(buildAboveHeadLines(config, stats));
+                        if (config.getDisplayBreedingStatus()) {
+                            lines.add(BreedingText.aboveHeadLine(config, breedingTracker.statusOf(horse)));
+                        }
+                        return lines;
+                    })
                     .orElse(List.of());
         } catch (RuntimeException exception) {
             disableAboveHeadDisplay(exception);

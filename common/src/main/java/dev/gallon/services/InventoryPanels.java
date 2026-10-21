@@ -3,6 +3,7 @@ package dev.gallon.services;
 import dev.gallon.CompareState;
 import dev.gallon.domain.BreedingOdds;
 import dev.gallon.domain.BreedingParent;
+import dev.gallon.domain.BreedingStatus;
 import dev.gallon.domain.DisplayMinMax;
 import dev.gallon.domain.HorseStats;
 import dev.gallon.domain.I18nKeys;
@@ -15,6 +16,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,12 @@ public final class InventoryPanels {
     private static final int BUTTON_STEP = 22;
     private static final int RESULTS_Y = BUTTONS_Y + 3 * BUTTON_STEP + 4;
     private static final int CHANCE_ROWS = 4;
+
+    // The breeding status takes a title, its state, and up to two lines of details. It always takes the same room, so
+    // that the panel doesn't change size when the status does.
+    private static final int BREEDING_STEP = LINE_HEIGHT + 1;
+    private static final int BREEDING_DETAIL_LINES = 2;
+    private static final int BREEDING_HEIGHT = 4 + (2 + BREEDING_DETAIL_LINES) * BREEDING_STEP;
 
     private static final int BORDER = 0xFF5B3A9E;
     private static final int BACKGROUND = 0xFF100010;
@@ -80,6 +88,7 @@ public final class InventoryPanels {
     public static int statsHeight(@NotNull ModConfig config, @NotNull HorseStats stats) {
         int rows = statsRows(config, stats).size();
         return PADDING + TITLE_HEIGHT + rows * ROW_HEIGHT + 4 + (stats.owner().isPresent() ? ROW_HEIGHT : 0)
+                + (config.getDisplayBreedingStatus() ? BREEDING_HEIGHT : 0)
                 + units().size() * LINE_HEIGHT + PADDING;
     }
 
@@ -88,6 +97,7 @@ public final class InventoryPanels {
             @NotNull Font font,
             @NotNull ModConfig config,
             @NotNull HorseStats stats,
+            @Nullable BreedingStatus breeding,
             @NotNull InventoryLayout.Rect rect,
             int originX,
             int originY
@@ -134,9 +144,27 @@ public final class InventoryPanels {
             drawText(graphics, font, owner, x + PADDING, rowY, MUTED);
             rowY += ROW_HEIGHT;
         }
+        if (breeding != null) {
+            drawBreeding(graphics, font, breeding, x + PADDING, rowY + 4, rect.width() - 2 * PADDING);
+            rowY += BREEDING_HEIGHT;
+        }
         for (String unit : units()) {
             drawText(graphics, font, unit, x + PADDING, rowY, MUTED);
             rowY += LINE_HEIGHT;
+        }
+    }
+
+    private static void drawBreeding(
+            GuiGraphicsExtractor graphics, Font font, BreedingStatus breeding, int x, int y, int width
+    ) {
+        drawText(graphics, font, I18n.get(I18nKeys.BREEDING), x, y, TEXT);
+        drawText(graphics, font, font.plainSubstrByWidth(BreedingText.label(breeding), width), x, y + BREEDING_STEP, BreedingText.color(breeding));
+
+        List<FormattedCharSequence> detail = BreedingText.detail(breeding)
+                .map(text -> font.split(Component.literal(text), width))
+                .orElse(List.of());
+        for (int i = 0; i < Math.min(detail.size(), BREEDING_DETAIL_LINES); i++) {
+            graphics.text(font, detail.get(i), x, y + (2 + i) * BREEDING_STEP, MUTED, true);
         }
     }
 
