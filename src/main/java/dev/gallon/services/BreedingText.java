@@ -80,9 +80,21 @@ public final class BreedingText {
      * @return the line displayed above a horse's head, like "Breeding: On cooldown 4:32"
      */
     public static @NotNull Component aboveHeadLine(@NotNull ModConfig config, @NotNull BreedingStatus status) {
+        return Component.literal(summary(config, status));
+    }
+
+    /**
+     * @return the breeding status for the message displayed when clicking a horse, if there is a timer to show: the
+     * cooldown, the love time or the time before a foal grows up
+     */
+    public static @NotNull Optional<String> timerSummary(@NotNull ModConfig config, @NotNull BreedingStatus status) {
+        return status.ticks() >= 0 ? Optional.of(summary(config, status)) : Optional.empty();
+    }
+
+    private static String summary(ModConfig config, BreedingStatus status) {
         String time = status.ticks() >= 0 ? " " + time(status) : "";
         String color = config.getColoredStats() ? chatColor(status).toString() : "";
         String reset = config.getColoredStats() ? ChatFormatting.RESET.toString() : "";
-        return Component.literal(I18n.get(I18nKeys.BREEDING) + ": " + color + label(status) + time + reset);
+        return I18n.get(I18nKeys.BREEDING) + ": " + color + label(status) + time + reset;
     }
 }

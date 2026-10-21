@@ -26,6 +26,16 @@ class OverlayStateTest {
     }
 
     @Test
+    void aMessageThatIsASupplierIsWorkedOutAgainForEveryDisplay() {
+        OverlayState state = new OverlayState();
+        int[] calls = {0};
+        state.show(() -> Component.literal("Shown " + ++calls[0]));
+
+        assertEquals("Shown 1", state.message().orElseThrow().getString());
+        assertEquals("Shown 2", state.message().orElseThrow().getString());
+    }
+
+    @Test
     void showingAnotherMessageRestartsTheTimer() {
         OverlayState state = new OverlayState();
         state.show(Component.literal("First"));

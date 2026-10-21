@@ -48,6 +48,21 @@ class DisplayServiceTest {
         assertTrue(message.contains(String.format("%.4f", 10.0)), message);
     }
 
+    @Test
+    void overlayEndsWithTheBreedingTimerWhenThereIsOne() {
+        for (GroupedKind kind : GroupedKind.values()) {
+            ModConfig config = new ModConfig();
+            config.setColoredStats(false);
+            config.setGroupedStats(kind);
+
+            String with = DisplayService.buildOverlayMessage(config, stats(), Optional.of("Breeding: On cooldown ~4:59")).getString();
+            String without = DisplayService.buildOverlayMessage(config, stats(), Optional.empty()).getString();
+
+            assertTrue(with.trim().endsWith("Breeding: On cooldown ~4:59"), kind + ": " + with);
+            assertFalse(without.contains("Breeding"), kind + ": " + without);
+        }
+    }
+
     private static int occurrences(String value, String searched) {
         return (value.length() - value.replace(searched, "").length()) / searched.length();
     }

@@ -126,7 +126,14 @@ public final class HorseStatsMod {
 
     private void displayHorseStats(@NotNull AbstractHorse horse) {
         getHorseStats(horse, config.getIncludeAttributeModifiers())
-                .ifPresent(stats -> overlayState.show(buildOverlayMessage(config, stats)));
+                .ifPresent(stats -> overlayState.show(() -> buildOverlayMessage(
+                        config,
+                        stats,
+                        // Worked out again for every frame: the exact timer arrives a moment after the click, and counts down
+                        config.getDisplayBreedingStatus()
+                                ? BreedingText.timerSummary(config, breedingTracker.statusOf(horse))
+                                : Optional.empty()
+                )));
     }
 
     public void onClientTick() {

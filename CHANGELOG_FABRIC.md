@@ -1,3 +1,13 @@
+## Version 3.11.0 Fabric
+
+_supports Minecraft 26.3.x_
+
+Changes:
+- The message shown when you click a horse now also shows its breeding timer, when there is one: the cooldown ("On
+  cooldown 4:59"), the love time ("Ready 0:29") or the time before a foal grows up ("Foal 19:58"). It counts down while
+  the message is on screen, and it starts with "~" when it is an estimate (on servers). Nothing is added for a horse
+  without a timer. It follows the `displayBreedingStatus` option.
+
 ## Version 3.10.0 Fabric
 
 _supports Minecraft 26.3.x_

@@ -102,6 +102,17 @@ public class DisplayService {
     }
 
     public static Component buildOverlayMessage(@NotNull ModConfig config, @NotNull HorseStats stats) {
+        return buildOverlayMessage(config, stats, Optional.empty());
+    }
+
+    /**
+     * @param breeding the breeding status to add at the end, when there is something to say about it
+     */
+    public static Component buildOverlayMessage(
+            @NotNull ModConfig config,
+            @NotNull HorseStats stats,
+            @NotNull Optional<String> breeding
+    ) {
         final String reset = reset(config);
         final String overall = I18n.get(I18nKeys.OVERALL) + ": " +
                 getColorTextFormat(config, stats.getGroupedStats(), 0, 100) + stats.getGroupedStatsStr(config);
@@ -114,16 +125,18 @@ public class DisplayService {
                 return Component.literal(
                 I18n.get(I18nKeys.STATS) + ": " +
                         getColorTextFormat(config, stats.getGroupedStats(),0, 100) + stats.getGroupedStatsStr(config) +
-                        reset + " " + owner.orElse("")
+                        reset + " " + owner.orElse("") + breeding.map(text -> " " + text).orElse("")
                 );
             case GroupedKind.INDIVIDUAL :
                 buildStats(config, stats, true).forEach(stat -> parts.add(buildStatText(config, stat)));
                 owner.ifPresent(parts::add);
+                breeding.ifPresent(parts::add);
                 break;
             case GroupedKind.GROUPED_AND_INDIVIDUAL :
                 buildStats(config, stats, true).forEach(stat -> parts.add(buildStatText(config, stat)));
                 owner.ifPresent(parts::add);
                 parts.add(overall);
+                breeding.ifPresent(parts::add);
                 break;
         }
 
