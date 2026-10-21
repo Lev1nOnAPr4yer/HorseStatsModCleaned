@@ -24,14 +24,6 @@ pluginManagement {
                 includeGroupAndSubgroups('org.spongepowered')
             }
         }
-        maven {
-            name = 'NeoForged'
-            url = uri('https://maven.neoforged.net/releases')
-        }
-        maven {
-            name = 'MinecraftForge'
-            url = uri('https://maven.minecraftforge.net')
-        }
     }
 }
 
@@ -40,8 +32,3 @@ plugins {
 }
 
 rootProject.name = 'horsestatsmod'
-
-include 'common'
-include 'fabric'
-include 'forge'
-include 'neoforge'

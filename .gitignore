@@ -2,9 +2,7 @@
 .claude/
 
 # mc
-fabric/runs
-forge/runs
-neoforge/runs
+runs
 
 logs/
 
