@@ -23,7 +23,7 @@ Display detailed statistics for **Horses, Donkeys, Mules, and Llamas**:
 
 * **HUD Display:** View stats instantly while riding via the action bar.
 * **Inventory Integration:** A stats panel next to the horse's inventory shows every stat as a value and a percentage at once, plus the overall percentage.
-* **Breeding Status:** See if a horse is a foal, on its breeding cooldown (with the time left), or ready to breed. The cooldown is exact in singleplayer and when hosting a LAN world, and unknown on other servers.
+* **Breeding Status:** See if a horse is a foal, on its breeding cooldown (with the time left), or ready to breed. The cooldown is exact in singleplayer and when hosting a LAN world. On other servers it is an estimate, worked out from the horses you see being fed and breeding.
 * **Breeding Compare:** Pick two horses or donkeys from their inventories and see the chance that their foal beats both parents on health, jump height, speed and overall.
 * **Above-Head Display:** See the stats floating above the mount you are looking at, or above every nearby mount.
 * **Min/Max Comparison:** Compare your mount's stats against the game's theoretical limits.

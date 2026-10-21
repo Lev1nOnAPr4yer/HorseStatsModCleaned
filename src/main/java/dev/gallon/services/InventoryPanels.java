@@ -44,7 +44,7 @@ public final class InventoryPanels {
     // The breeding status takes a title, its state, and up to two lines of details. It always takes the same room, so
     // that the panel doesn't change size when the status does.
     private static final int BREEDING_STEP = LINE_HEIGHT + 1;
-    private static final int BREEDING_DETAIL_LINES = 2;
+    private static final int BREEDING_DETAIL_LINES = 3;
     private static final int BREEDING_HEIGHT = 4 + (2 + BREEDING_DETAIL_LINES) * BREEDING_STEP;
 
     private static final int BORDER = 0xFF5B3A9E;

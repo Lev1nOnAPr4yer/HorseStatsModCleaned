@@ -9,6 +9,7 @@ import dev.gallon.mixins.AbstractContainerScreenAccessor;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -64,6 +65,12 @@ public final class HorseStatsModFabric implements ClientModInitializer {
                 STATS_OVERLAY,
                 horseStatsMod::onRenderOverlayEvent
         );
+
+        ClientEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (entity instanceof AbstractHorse horse) {
+                horseStatsMod.onHorseLoaded(horse);
+            }
+        });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             horseStatsMod.onClientTick();

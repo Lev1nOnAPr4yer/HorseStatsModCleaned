@@ -246,6 +246,28 @@ public final class HorseStatsMod {
     }
 
     /**
+     * Called when hearts burst above a horse: the server sends them when a horse is fed and when it has a foal.
+     */
+    public void onHeartsEvent(@NotNull AbstractHorse horse) {
+        try {
+            breedingTracker.onHearts(horse);
+        } catch (RuntimeException exception) {
+            LOGGER.error("HorseStatsMod failed to follow the breeding of a horse", exception);
+        }
+    }
+
+    /**
+     * Called when a horse appears on the client.
+     */
+    public void onHorseLoaded(@NotNull AbstractHorse horse) {
+        try {
+            breedingTracker.onLoaded(horse);
+        } catch (RuntimeException exception) {
+            LOGGER.error("HorseStatsMod failed to follow the breeding of a horse", exception);
+        }
+    }
+
+    /**
      * Adds the "Add to compare 1", "Add to compare 2" and "Run compare" buttons to a mount's inventory.
      */
     public void onHorseInventoryInit(@NotNull HorseInventoryScreen screen, @NotNull Consumer<Button> addButton) {

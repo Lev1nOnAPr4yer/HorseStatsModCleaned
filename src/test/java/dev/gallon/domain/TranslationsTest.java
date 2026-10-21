@@ -36,7 +36,7 @@ class TranslationsTest {
         for (BreedingStatus.Blocker blocker : BreedingStatus.Blocker.values()) {
             keys.add("horsestatsmod.breeding.detail." + blocker.name().toLowerCase(Locale.ROOT));
         }
-        for (String detail : List.of("foal", "cooldown", "ready", "can_be_fed", "unknown")) {
+        for (String detail : List.of("foal", "cooldown", "ready", "can_be_fed", "can_be_fed_estimated", "unknown")) {
             keys.add("horsestatsmod.breeding.detail." + detail);
         }
 

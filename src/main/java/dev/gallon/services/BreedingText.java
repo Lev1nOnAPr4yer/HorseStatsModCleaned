@@ -33,7 +33,7 @@ public final class BreedingText {
      * @return what to know besides the label: the time left, what is in the way, or what to do
      */
     public static @NotNull Optional<String> detail(@NotNull BreedingStatus status) {
-        String time = BreedingStatus.formatTime(status.ticks());
+        String time = time(status);
         return switch (status.state()) {
             case FOAL -> status.ticks() >= 0 ? Optional.of(I18n.get("horsestatsmod.breeding.detail.foal", time)) : Optional.empty();
             case COOLDOWN -> Optional.of(I18n.get("horsestatsmod.breeding.detail.cooldown", time));
@@ -41,11 +41,20 @@ public final class BreedingText {
             case IN_LOVE, CAN_BE_FED -> status.blocker()
                     .map(blocker -> I18n.get("horsestatsmod.breeding.detail." + blocker.name().toLowerCase()))
                     .or(() -> status.state() == BreedingStatus.State.CAN_BE_FED
-                            ? Optional.of(I18n.get("horsestatsmod.breeding.detail.can_be_fed"))
+                            ? Optional.of(I18n.get(status.estimated()
+                            ? "horsestatsmod.breeding.detail.can_be_fed_estimated"
+                            : "horsestatsmod.breeding.detail.can_be_fed"))
                             : Optional.empty());
             case UNKNOWN -> Optional.of(I18n.get("horsestatsmod.breeding.detail.unknown"));
             case NOT_TAMED, CHECKING -> Optional.empty();
         };
+    }
+
+    /**
+     * @return the time left, with a "~" in front of it when it is an estimate
+     */
+    private static String time(BreedingStatus status) {
+        return (status.estimated() ? "~" : "") + BreedingStatus.formatTime(status.ticks());
     }
 
     public static int color(@NotNull BreedingStatus status) {
@@ -71,7 +80,7 @@ public final class BreedingText {
      * @return the line displayed above a horse's head, like "Breeding: On cooldown 4:32"
      */
     public static @NotNull Component aboveHeadLine(@NotNull ModConfig config, @NotNull BreedingStatus status) {
-        String time = status.ticks() >= 0 ? " " + BreedingStatus.formatTime(status.ticks()) : "";
+        String time = status.ticks() >= 0 ? " " + time(status) : "";
         String color = config.getColoredStats() ? chatColor(status).toString() : "";
         String reset = config.getColoredStats() ? ChatFormatting.RESET.toString() : "";
         return Component.literal(I18n.get(I18nKeys.BREEDING) + ": " + color + label(status) + time + reset);

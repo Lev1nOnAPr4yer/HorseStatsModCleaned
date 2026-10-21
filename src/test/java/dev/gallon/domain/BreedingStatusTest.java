@@ -86,6 +86,18 @@ class BreedingStatusTest {
     }
 
     @Test
+    void anEstimateIsMarkedAndStaysMarkedWhileItCountsDown() {
+        BreedingStatus exact = BreedingStatus.of(adult(6000, 0));
+        BreedingStatus estimate = exact.asEstimate();
+
+        assertEquals(false, exact.estimated());
+        assertEquals(true, estimate.estimated());
+        assertEquals(true, estimate.elapsed(100).estimated());
+        assertEquals(exact.state(), estimate.state());
+        assertEquals(exact.ticks(), estimate.ticks());
+    }
+
+    @Test
     void formatsTimesAsMinutesAndSecondsRoundedUp() {
         assertEquals("5:00", BreedingStatus.formatTime(6000));
         assertEquals("4:59", BreedingStatus.formatTime(5980));

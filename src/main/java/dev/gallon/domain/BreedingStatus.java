@@ -13,10 +13,17 @@ import java.util.Optional;
  * minutes after a foal is born). The game keeps the cooldown and the love time on the server only, so they are unknown
  * (null) when the client can't read them.
  *
- * @param ticks the time left for {@link State#COOLDOWN}, {@link State#READY}, {@link State#IN_LOVE} and
- *              {@link State#FOAL} (20 ticks per second), or -1 when it isn't known
+ * @param ticks     the time left for {@link State#COOLDOWN}, {@link State#READY}, {@link State#IN_LOVE} and
+ *                  {@link State#FOAL} (20 ticks per second), or -1 when it isn't known
+ * @param estimated true when the cooldown and the love time weren't read from the server, but worked out from what the
+ *                  client saw (see {@link BreedingLog})
  */
-public record BreedingStatus(@NotNull State state, int ticks, @NotNull Optional<Blocker> blocker) {
+public record BreedingStatus(
+        @NotNull State state,
+        int ticks,
+        @NotNull Optional<Blocker> blocker,
+        boolean estimated
+) {
     public enum State {
         /**
          * A baby horse: it can't breed until it has grown up
@@ -71,7 +78,7 @@ public record BreedingStatus(@NotNull State state, int ticks, @NotNull Optional<
     }
 
     public static @NotNull BreedingStatus checking() {
-        return new BreedingStatus(State.CHECKING, -1, Optional.empty());
+        return new BreedingStatus(State.CHECKING, -1, Optional.empty(), false);
     }
 
     public static @NotNull BreedingStatus of(@NotNull Inputs inputs) {
@@ -79,26 +86,34 @@ public record BreedingStatus(@NotNull State state, int ticks, @NotNull Optional<
             return new BreedingStatus(
                     State.FOAL,
                     inputs.age() != null && inputs.age() < 0 ? -inputs.age() : -1,
-                    Optional.empty()
+                    Optional.empty(),
+                    false
             );
         }
         if (!inputs.tamed()) {
-            return new BreedingStatus(State.NOT_TAMED, -1, Optional.empty());
+            return new BreedingStatus(State.NOT_TAMED, -1, Optional.empty(), false);
         }
         if (inputs.age() == null || inputs.inLove() == null) {
-            return new BreedingStatus(State.UNKNOWN, -1, Optional.empty());
+            return new BreedingStatus(State.UNKNOWN, -1, Optional.empty(), false);
         }
         if (inputs.age() > 0) {
-            return new BreedingStatus(State.COOLDOWN, inputs.age(), Optional.empty());
+            return new BreedingStatus(State.COOLDOWN, inputs.age(), Optional.empty(), false);
         }
 
         Optional<Blocker> blocker = inputs.ridden()
                 ? Optional.of(Blocker.RIDDEN)
                 : inputs.hurt() ? Optional.of(Blocker.HURT) : Optional.empty();
         if (inputs.inLove() > 0) {
-            return new BreedingStatus(blocker.isEmpty() ? State.READY : State.IN_LOVE, inputs.inLove(), blocker);
+            return new BreedingStatus(blocker.isEmpty() ? State.READY : State.IN_LOVE, inputs.inLove(), blocker, false);
         }
-        return new BreedingStatus(State.CAN_BE_FED, -1, blocker);
+        return new BreedingStatus(State.CAN_BE_FED, -1, blocker, false);
+    }
+
+    /**
+     * @return the same status, marked as worked out from what the client saw instead of read from the server
+     */
+    public @NotNull BreedingStatus asEstimate() {
+        return new BreedingStatus(state, ticks, blocker, true);
     }
 
     /**
@@ -108,7 +123,7 @@ public record BreedingStatus(@NotNull State state, int ticks, @NotNull Optional<
         if (ticks < 0 || elapsedTicks <= 0) {
             return this;
         }
-        return new BreedingStatus(state, Math.max(0, ticks - elapsedTicks), blocker);
+        return new BreedingStatus(state, Math.max(0, ticks - elapsedTicks), blocker, estimated);
     }
 
     /**

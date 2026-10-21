@@ -1,3 +1,20 @@
+## Version 3.10.0 Fabric
+
+_supports Minecraft 26.3.x_
+
+Changes:
+- The breeding status and cooldown now also work on servers, as an **estimate** (the times start with "~"). The game
+  doesn't tell clients about the cooldown, but the mod sees what leads to it:
+  - Hearts above a horse that is fed: it was off cooldown, and is in love for 30 seconds ("Ready", "In love").
+  - Hearts above a horse and a foal appearing next to it: two horses just bred. Both parents get a 5 minute
+    cooldown. The partner is found among the adults within 3 blocks, and if it can't be told which one it was, only the
+    mother gets the cooldown.
+  - It only knows what happened in front of you. A horse that you haven't seen fed or bred is "Unknown", and everything
+    is forgotten when you leave the server. The server stops the cooldown of a horse in an unloaded area, and a horse
+    that was hurt isn't in love any more, which the mod can't see.
+  - In singleplayer and when hosting a LAN world nothing changes: the exact values are still read from the game.
+- This fork only supports Fabric now: Forge and NeoForge, their builds and their changelogs are removed.
+
 ## Version 3.9.0 Fabric
 
 _supports Minecraft 26.3.x_
